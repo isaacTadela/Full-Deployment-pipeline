@@ -84,4 +84,4 @@ you can also customize to your needs
 Seeing is believing or understanding in our case so for the finally you can see here a 3D diagram of all the environment
 (generated with [Cloudcraft](https://www.cloudcraft.co))
 
-![cloudcraft diagram]( /cloudcraft diagram(3D).png )
+![cloudcraft diagram]( /cloudcraft_diagram(3D).PNG )
