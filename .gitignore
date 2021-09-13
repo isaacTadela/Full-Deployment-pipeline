@@ -4,7 +4,11 @@
 *.tfstate*
 *.log
 
-# Secrets are not allowed in general
+# Secrets
 *.key
 *.pem
 *.hcl
+
+# Notes
+# *.txt
+# *.pdf

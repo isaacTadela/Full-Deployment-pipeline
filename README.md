@@ -50,7 +50,7 @@ This repo creates environment modules with all the necessary resources to enable
 ### Setup
 You can basically run  ```terraform init```  to initialize the modules  
 run  ```terraform plan```  for a dry-run  
-and  ```terraform apply```  this will execute the code and setup the environment in the AWS region "eu-west-3" in about 10 minutes
+and  ```terraform apply -out output.tfplan```  this will execute the code and setup the environment in the AWS region "eu-west-3" in about 10 minutes
 
 ### A little more advanced setup
 Now suppose we want to provision the same environment for our development and testing teams in Europe but our customers are in the US  
@@ -85,3 +85,7 @@ Seeing is believing or understanding in our case so for the finally you can see 
 (generated with [Cloudcraft](https://www.cloudcraft.co))
 
 ![cloudcraft diagram]( /cloudcraft%20diagram(3D).PNG )
+
+
+---------------------------------
+
