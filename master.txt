@@ -1,0 +1,226 @@
+All in one bash script, save in 'script.sh' and run 'sh script.sh' ( touch script.sh && nano script.sh )
+
+TO-DO:
+learn JCasC and seed job -> master need to be autoscaling group???
+work on vault 
+use consul-template and NOT consul - session 16  3:45~
+
+
+Installation:
+	---------------------------------------------------- Installation -----------------------------------------
+	sudo apt update
+	sudo apt -y upgrade
+	# AWS cli 
+	sudo apt -y install awscli
+	# Java 11
+	sudo apt search openjdk
+	sudo apt install openjdk-11-jdk -y
+	# Jenkines
+	wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+	sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+	sudo apt-get install jenkins -y
+	# Chef
+	wget https://packages.chef.io/files/stable/chef-workstation/21.2.278/ubuntu/20.04/chef-workstation_21.2.278-1_amd64.deb
+	sudo dpkg -i chef-workstation_21.2.278-1_amd64.deb
+	sudo apt-get install -y gnupg software-properties-common curl
+	# Hashicorp
+	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+	# Terraform
+	apt-get install terraform	
+	# Vault
+	sudo apt-get install vault
+	# Consul
+	sudo apt-get install consul
+	# Grafana the latest Enterprise edition
+	sudo apt-get install -y apt-transport-https
+	sudo apt-get install -y software-properties-common wget
+	wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+	echo "deb https://packages.grafana.com/enterprise/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+	sudo apt-get install grafana-enterprise	
+	sudo systemctl daemon-reload --no-pager
+	sudo systemctl start grafana-server --no-pager
+
+	# Configure the servers to start at boot
+	sudo systemctl enable jenkins.service
+	sudo systemctl enable grafana-server.service
+
+	# Check all installed: 
+	java -version
+	sudo systemctl status jenkins --no-pager
+	sudo systemctl status grafana-server --no-pager
+	chef -v
+	terraform -v
+	vault -v
+	consul -v
+	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+	export VAULT_ADDR='http://127.0.0.1:8200'
+	# Jenkines default port 8080
+	# Grafana default port 3000
+	# you my need to run this again, export VAULT_ADDR='http://127.0.0.1:8200'
+
+	Useful commands:
+	sudo service jenkins restart
+	sudo service jenkins stop
+	sudo service jenkins start
+	sudo systemctl status jenkins
+	sudo systemctl status grafana-server --no-pager
+
+
+	Configure the Grafana server to start at boot:
+	sudo systemctl enable grafana-server.service
+
+System:
+	sudo apt update
+	sudo apt -y upgrade
+	sudo apt -y install awscli	
+	
+Switch users:
+	sudo su ubuntu
+	sudo -i
+
+Jenkines:
+Installation of Java:
+	sudo apt update
+	sudo apt search openjdk
+	sudo apt install openjdk-11-jdk -y
+	java -version
+
+Long Term Support release for Debian/Ubuntu:
+	wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+	sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > \
+		/etc/apt/sources.list.d/jenkins.list'
+	sudo apt-get update
+	sudo apt-get install jenkins -y
+	sudo systemctl status jenkins
+
+initial Admin Password for Jenkines:
+	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+	$ sudo service jenkins restart
+	$ sudo service jenkins stop
+	$ sudo service jenkins start
+	$ sudo systemctl status jenkins
+
+Chef:
+	wget https://packages.chef.io/files/stable/chef-workstation/21.2.278/ubuntu/20.04/chef-workstation_21.2.278-1_amd64.deb
+	sudo dpkg -i chef-workstation_21.2.278-1_amd64.deb
+	rm chef-workstation_21.2.278-1_amd64.deb
+	chef -v
+
+Terraform:
+	sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
+	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+	sudo apt-get update && sudo apt-get install terraform
+	terraform -help
+
+Vault:
+	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+	sudo apt-get update && sudo apt-get install vault
+	export VAULT_ADDR='http://127.0.0.1:8200'
+	vault
+
+Consul: 
+	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+	sudo apt-get update && sudo apt-get install consul
+	consul
+
+Grafana:
+	sudo apt-get install -y apt-transport-https
+	sudo apt-get install -y software-properties-common wget
+	wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+	echo "deb https://packages.grafana.com/enterprise/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+	sudo apt-get update
+	sudo apt-get install grafana-enterprise
+
+	sudo systemctl daemon-reload
+	sudo systemctl start grafana-server
+
+
+	$ sudo systemctl status grafana-server
+
+	Configure the Grafana server to start at boot:
+		$ sudo systemctl enable grafana-server.service
+
+Jenkines:
+	---------------------------------------------------- Jenkines ----------------------------------------- 
+	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+	Jenkines Pip:	
+	Jenkines Plugins Required:
+
+	Workspace Cleanup Plugin
+	Credentials Binding Plugin
+	AnsiColor Plugin
+	GitHub Plugin
+	Pipeline Plugin
+	CloudBees AWS Credentials Plugin
+
+	GitHub Token:
+	isaacTadela/Full-web-app-Infrastructure-Provisioning
+		Jenkins-Terraform-Project
+		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
+	
+	
+	
+Username and Password - for cloneing
+
+ID = awsCredentials
+
+
+---------------------------------------------------- Chef ------------------------------------------
+---------------------------------------------------- Terraform -------------------------------------
+---------------------------------------------------- Vault ----------------------------------------- 
+
+	sudo vault status
+	sudo vault server -dev
+
+Other options:
+vault server -config=/etc/vault/config.hcl -dev-root-token-id="root"
+vault server -dev -dev-root-token-id="root"
+
+Output to copy:
+Unseal Key: ClE+CeGu6XaKN9SGo8/TulljwqT5RjTrdf4I1F9f978=
+Root Token: s.PjU9y39ro58YImc2wD3Iffv8
+
+
+
+***Continue in a different terminal****
+export VAULT_ADDR='http://127.0.0.1:8200'	
+export VAULT_TOKEN="s.PjU9y39ro58YImc2wD3Iffv8"
+
+vault status
+vault server -config=./config.hcl
+
+
+מה צריך??
+1.	Vault-Server setup
+VAULT_DEV_ROOT_TOKEN_ID=myroot  -e 'VAULT_LOCAL_CONFIG={"inmem": {}}, "default_lease_ttl": "1h", "max_lease_ttl": "8760h"}' 
+2.	Login into Vault
+a.	$ export VAULT_ADDR='http://127.0.0.1:8200’
+b.	$ vault login myroot
+
+
+
+
+---------------------------------------------------- Consul -----------------------------------------
+http://15.236.145.201:8500/ui/
+---------------------------------------------------- Grafana ----------------------------------------- 
+---------------------------------------------------- Testing ----------------------------------------- 
+
+
+
+$ export VAULT_ADDR='http://127.0.0.1:8200'
+
+The unseal key and root token are displayed below in case you want to
+seal/unseal the Vault or re-authenticate.
+
+Unseal Key: 47bR+o1uxYcbUPNy7UMcEaAqxfP0oJJPWxlci5pwekA=
+Root Token: root
+
+
+
+
