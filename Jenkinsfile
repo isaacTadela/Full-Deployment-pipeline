@@ -1,5 +1,5 @@
 // Jenkinsfile
-String credentialsId = 'awsCredentials'
+String credentialsId = 'JenkinsCred'
 
 try {
   stage('checkout') {
@@ -21,7 +21,7 @@ try {
   // Run terraform plan
   stage('plan') {
     node {
-	  withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+	    withAWS(credentials: 'credentialsId', region: 'eu-west-3'){
         ansiColor('xterm') {
           sh 'terraform plan'
         }
