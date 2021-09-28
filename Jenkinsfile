@@ -13,9 +13,9 @@ try {
   stage('init') {
     node {
         ansiColor('xterm') {
-          sh 'terraform init'
-	  echo $AWS_ACCESS_KEY_ID
-	  echo $AWS_SECRET_ACCESS_KEY
+          echo '$AWS_ACCESS_KEY_ID'
+	  echo '$AWS_SECRET_ACCESS_KEY'
+	sh 'terraform init'  
         }
     }
   }
