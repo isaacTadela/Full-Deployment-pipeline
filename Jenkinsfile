@@ -21,7 +21,7 @@ try {
   // Run terraform plan
   stage('plan') {
     node {
-	    withAWS(credentials: 'JenkinsCred', region: 'eu-west-3'){
+	withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'JenkinsCred', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
         ansiColor('xterm') {
           sh 'terraform plan'
         }
