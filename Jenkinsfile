@@ -21,7 +21,7 @@ try {
   // Run terraform plan
   stage('plan') {
     node {
-	    withAWS(credentials: 'credentialsId', region: 'eu-west-3'){
+	    withAWS(credentials: 'JenkinsCred', region: 'eu-west-3'){
         ansiColor('xterm') {
           sh 'terraform plan'
         }
