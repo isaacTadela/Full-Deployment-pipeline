@@ -12,23 +12,25 @@ try {
   // Run terraform init
   stage('init') {
     node {
-        ansiColor('xterm') {
-	sh 'terraform init -backend-config="access_key=AKIA2PNUMLAC4EKECKPM" -backend-config="secret_key=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"'  
+      ansiColor('xterm') {
+        withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+	    sh 'terraform init'
         }
+      }
     }
   }
 
   // Run terraform plan
   stage('plan') {
     node {
-	  withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'JenkinsCred', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+	  withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
         ansiColor('xterm') {
-          sh 'terraform plan -backend-config="access_key=AKIA2PNUMLAC4EKECKPM" -backend-config="secret_key=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"' 
+          sh 'terraform plan' 
         }
       }
     }
   }
-/*
+  
   if (env.BRANCH_NAME == 'master') {
 
     // Run terraform apply
@@ -55,7 +57,7 @@ try {
   }
   
   currentBuild.result = 'SUCCESS'
-  */
+  
 }
 catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException flowError) {
   currentBuild.result = 'ABORTED'
@@ -67,5 +69,6 @@ catch (err) {
 finally {
   if (currentBuild.result == 'SUCCESS') {
     currentBuild.result = 'SUCCESS'
+    echo 'SUCCESS'
   }
 }
