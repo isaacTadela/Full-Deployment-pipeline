@@ -1,10 +1,10 @@
 terraform {
    backend "s3" {
-    bucket 								= "workshop-tf-state-isaac"
-	encrypt 							= true
-    key 								= "workshop-site-state-isaac/terraform.tfstate"
+    bucket 							= "workshop-tf-state-isaac"
+    encrypt 							= true
+    key 							= "workshop-site-state-isaac/terraform.tfstate"
     dynamodb_table 						= "tf-workshop-site-locks"
-    region 								= "eu-west-3"
+    region 							= "eu-west-3"
   }
 } 
 
@@ -15,8 +15,8 @@ provider "aws" {
 module "vpc" {
   source = "./modules/vpc"
   
-  azs 									= var.azs
-  vpc_cidr 								= var.vpc_cidr
+  azs 								= var.azs
+  vpc_cidr 							= var.vpc_cidr
   private_subnets 						= var.private_subnets
   public_subnets 						= var.public_subnets
   environment 							= var.environment
