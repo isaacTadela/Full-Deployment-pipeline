@@ -1,6 +1,5 @@
 // Jenkinsfile
 // String credentialsId = 'JenkinsCred'
-// String credentialsId = 'JenkinsCred'
 
 try {
   stage('checkout') {
