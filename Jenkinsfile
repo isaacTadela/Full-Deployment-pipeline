@@ -1,7 +1,5 @@
 // Jenkinsfile
 // String credentialsId = 'JenkinsCred'
-// dfg dfg
-
 
 try {
   stage('checkout') {
