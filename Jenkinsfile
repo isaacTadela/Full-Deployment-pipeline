@@ -1,6 +1,13 @@
 // Jenkinsfile that build,test,deploy artifact to S3 and update consul value
 
 
+stage('checkout') {
+    node {
+      cleanWs()
+      checkout scm
+    }
+  } 
+
 // Build and Test the app
 stage('Build and Test') {
   node {
