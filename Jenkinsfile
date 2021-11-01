@@ -7,7 +7,6 @@ stage('Build and Test') {
     ansiColor('xterm') {
       sh'''
       git clone https://github.com/isaacTadela/privat-unofficial-Chevrolet-
-      git clone https://github.com/isaacTadela/Full-Deployment-pipeline.git
       '''
     }
   }
