@@ -1,5 +1,4 @@
-// Jenkinsfile that build,test,deploy artifact to S3 and update consul value
-
+// Jenkinsfile
 
 stage('checkout') {
     node {
