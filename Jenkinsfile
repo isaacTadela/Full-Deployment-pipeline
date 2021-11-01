@@ -6,7 +6,7 @@ stage('Build and Test') {
   node {
     ansiColor('xterm') {
       sh'''
-      git clone https://github.com/isaacTadela/privat-unofficial-Chevrolet-
+      git clone https://github.com/isaacTadela/privat-unofficial-Chevrolet-Autoshop.git
       '''
     }
   }
