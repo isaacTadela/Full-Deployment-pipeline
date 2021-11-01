@@ -34,7 +34,8 @@ if (env.BRANCH_NAME == 'master') {
     node {
       withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
         ansiColor('xterm') {
-          sh 'terraform apply -auto-approve'
+          //sh 'terraform apply -auto-approve'
+          echo 'Terraform apply'
         }
       }
     }
@@ -44,7 +45,8 @@ if (env.BRANCH_NAME == 'master') {
     node {
       withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
         ansiColor('xterm') {
-          sh 'terraform show'
+          //sh 'terraform show'
+          echo 'terraform show'
         }
       }
     }
