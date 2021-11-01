@@ -1,73 +1,81 @@
-// Jenkinsfile
-// String credentialsId = 'JenkinsCred'
+// Jenkinsfile that build,test,deploy artifact to S3 and update consul value
 
-try {
-  stage('checkout') {
-    node {
-      cleanWs()
-      checkout scm
+
+// Build and Test the app
+stage('Build and Test') {
+  node {
+    ansiColor('xterm') {
+      sh'''
+      git clone https://github.com/isaacTadela/privat-unofficial-Chevrolet-
+      git clone https://github.com/isaacTadela/Full-Deployment-pipeline.git
+      '''
     }
-  } 
+  }
+}
 
-  // Run terraform init
-  stage('init') {
-    node {
-        withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-	    sh 'terraform init'
-	    echo 'status...'
+
+// Run terraform init and plan
+stage('Terraform init and plan') {
+  node {
+    ansiColor('xterm') {
+      withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        sh'''
+        terraform init
+        terraform plan
+        '''
       }
     }
   }
+}
 
-  // Run terraform plan
-  stage('plan') {
+
+if (env.BRANCH_NAME == 'master') {
+  // Run terraform apply
+  stage('apply') {
     node {
-	  withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+      withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
         ansiColor('xterm') {
-          sh 'terraform plan' 
+          sh 'terraform apply -auto-approve'
         }
       }
     }
   }
-  
-  if (env.BRANCH_NAME == 'master') {
-
-    // Run terraform apply
-    stage('apply') {
-      node {
-        withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-          ansiColor('xterm') {
-            sh 'terraform apply -auto-approve'
-          }
-        }
-      }
-    }
-
-    // Run terraform show
-    stage('show') {
-      node {
-        withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-          ansiColor('xterm') {
-            sh 'terraform show'
-          }
+  // Run terraform show
+  stage('show') {
+    node {
+      withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        ansiColor('xterm') {
+          sh 'terraform show'
         }
       }
     }
   }
+}
   
-  currentBuild.result = 'SUCCESS'
-  
+
+// Upload artifact to S3 
+stage('Upload artifact') {
+  node {
+    ansiColor('xterm') {
+      withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        sh'''
+        aws s3 ls
+        '''
+      }
+    }
+  }
 }
-catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException flowError) {
-  currentBuild.result = 'ABORTED'
-}
-catch (err) {
-  currentBuild.result = 'FAILURE'
-  throw err
-}
-finally {
-  if (currentBuild.result == 'SUCCESS') {
-    currentBuild.result = 'SUCCESS'
-    echo 'SUCCESS'
+
+
+// Update Consul KV 
+stage('Update Consul') {
+  node {
+    ansiColor('xterm') {
+      withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        sh'''
+        aws s3 ls
+        '''
+      }
+    }
   }
 }
