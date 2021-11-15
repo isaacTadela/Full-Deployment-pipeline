@@ -1,3 +1,8 @@
+variable "MASTER_IP" {
+     type        = string
+     description = "An input variable using env variables, this is the master's machine ip."
+}
+
 variable "environment" {
   description 	= "This is mainly used to set various ideintifiers and prefixes/suffixes"
   default     	= "production"
@@ -64,4 +69,16 @@ variable "instance_type" {
 variable "ami" {
   description 	= "Ubuntu Server 18.04"
   default		= "ami-0a0d71ff90f62f72a"
+}
+
+variable "default_tags" {
+  description = "Default Tags for the Auto Scaling Group"
+  type        = map(string)
+
+  default     = {
+      Environment = "production"
+      Owner       = "IsaacT"
+      Project     = "Cloud School"
+      ManagedBy = "Terraform"
+ }
 }

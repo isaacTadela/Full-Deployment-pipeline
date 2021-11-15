@@ -125,22 +125,7 @@ data "template_file" "script" {
   template = file("${path.module}/templates/project-app.cloudinit")
 
   vars = {
-	DB_DNS=var.db_hostname
-	DB_PORT=var.db_port
-	DB_USER=var.db_username
-	DB_PASS=var.db_password
-  }
-
-}
-
-# TO-DO:
-# create a script for the master
-# add master to the target group if you think it right
-# and fix all the indentations
-data "template_file" "master_script" {
-  template = file("${path.module}/templates/project-app.cloudinit")
-
-  vars = {
+	MASTER_IP=var.master_ip
 	DB_DNS=var.db_hostname
 	DB_PORT=var.db_port
 	DB_USER=var.db_username
@@ -158,25 +143,6 @@ resource "aws_network_interface" "master_network_interface" {
   }
 }
 
-resource "aws_instance" "master" {
-  ami           = var.ami
-  instance_type = "t2.medium"
-  iam_instance_profile	  = aws_iam_instance_profile.s3_access_role_profile.name
-  user_data 			  = data.template_file.master_script.rendered
-  key_name                = aws_key_pair.admin_key.id
-  monitoring       = true
-  
-  network_interface {
-    network_interface_id = aws_network_interface.master_network_interface.id
-    device_index         = 0
-  }
-
-  tags = {
-    Name = "${var.environment}-master"
-  }
-
-}
-
 
 resource "aws_launch_configuration" "launch_config" {
   name_prefix             = "${var.environment}_launch_config"
@@ -191,6 +157,13 @@ resource "aws_launch_configuration" "launch_config" {
   lifecycle {
     create_before_destroy = true
   }
+
+  tags = [ merge(
+     var.autoscaling_tags,
+     {
+      Name = "${var.environment}-node"
+     },
+   ) ]
 }
 
 resource "aws_autoscaling_group" "autoscaling_group" {

@@ -3,6 +3,9 @@
 sudo apt update
 sudo apt -y upgrade < "/dev/null"
 
+# export the master ip
+sudo echo "export MASTER_IP=${MASTER_IP}" >> /etc/environment
+
 # export db variables
 sudo echo "export DB_DNS=${DB_DNS}" >> /etc/environment
 sudo echo "export DB_PORT=${DB_PORT}" >> /etc/environment

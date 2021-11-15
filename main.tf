@@ -10,6 +10,10 @@ terraform {
 
 provider "aws" {
   region = var.region
+  
+  default_tags {
+    tags = var.default_tags
+  }
 }
 
 module "vpc" {
@@ -64,7 +68,8 @@ module "ec2" {
   instance_type 						= var.instance_type
   ami 									= var.ami
   environment 							= var.environment
-  
-  
+  master_ip 									= var.MASTER_IP 
+  autoscaling_tags                      = var.default_tags
+
   depends_on = [module.alb]
 } 

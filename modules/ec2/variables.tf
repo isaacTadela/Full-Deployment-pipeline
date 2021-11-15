@@ -1,3 +1,5 @@
+variable "master_ip" {}
+
 variable "environment" {}
 
 variable "ami" {}
