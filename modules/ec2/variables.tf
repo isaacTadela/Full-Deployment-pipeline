@@ -27,3 +27,5 @@ variable "db_port" {}
 variable "db_username" {}
 
 variable "db_password" {}
+
+variable "autoscaling_tags" {}

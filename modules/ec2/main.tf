@@ -38,7 +38,7 @@ resource "aws_security_group" "ec2_sg" {
 }
 
 resource "aws_key_pair" "admin_key" {
-  key_name 				  = var.environment
+  key_name 				  = "testKey"
   public_key 			  = file("${path.module}/keys/admin.pub")
   
   tags 					  = { Name = "${var.environment}-key_pair" }
@@ -157,13 +157,6 @@ resource "aws_launch_configuration" "launch_config" {
   lifecycle {
     create_before_destroy = true
   }
-
-  tags = [ merge(
-     var.autoscaling_tags,
-     {
-      Name = "${var.environment}-node"
-     },
-   ) ]
 }
 
 resource "aws_autoscaling_group" "autoscaling_group" {
@@ -184,11 +177,12 @@ resource "aws_autoscaling_group" "autoscaling_group" {
   }
   
   
-  tag {
-    key                   = "Name"
-    value                 = "${var.environment}-node"
-    propagate_at_launch   = true
-  }
+  tags = [ merge(
+     var.autoscaling_tags,
+     {
+      Name = "${var.environment}-node"
+     }
+   ) ]
 }
 
 resource "aws_autoscaling_policy" "scale_up_policy" {
