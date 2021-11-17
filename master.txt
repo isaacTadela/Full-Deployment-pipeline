@@ -26,6 +26,7 @@ export AWS_SECRET_ACCESS_KEY=pxN6OtleFEKN6+Vc8WoxecbnviOpylTCZH8lqj9D
 echo AWS_ACCESS_KEY_ID=AKIA2PNUMLAC37F425MI | sudo tee -a /etc/environment 
 echo AWS_SECRET_ACCESS_KEY=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 | sudo tee -a /etc/environment  
 
+
 ---------------------------------------------------- Installation -----------------------------------------	
  
  Installation of master: (Next, we will install Vault as a service to ensure it is available after a server reboot. )
