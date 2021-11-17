@@ -20,7 +20,8 @@ provider "vault" {
 resource "vault_aws_secret_backend" "aws" {
   access_key = "${var.access_key}"
   secret_key = "${var.secret_key}"
-  region = "us-east-2"
+  region = var.region
+  
   default_lease_ttl_seconds = "120"
   max_lease_ttl_seconds     = "240"
 }
