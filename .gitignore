@@ -9,6 +9,6 @@
 *.pem
 *.hcl
 
-# Notes
-# *.txt
-# *.pdf
+Notes
+*.txt
+*.pdf

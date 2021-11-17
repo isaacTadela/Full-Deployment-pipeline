@@ -1,226 +1,511 @@
+Node - testing
+Jenkins - update testing & upload
+Chef - run the app
+Consul- render the user-data
+Vault - aws engine
+Terraform - ? Vault?
+
+
 All in one bash script, save in 'script.sh' and run 'sh script.sh' ( touch script.sh && nano script.sh )
 
-TO-DO:
-learn JCasC and seed job -> master need to be autoscaling group???
-work on vault 
-use consul-template and NOT consul - session 16  3:45~
+
+Master:		    Node: 
+awscli		    Git
+Java		      ChefDK (chef-solo) -->  consul-template
+jenkins							                  My App: "nodejs", "npm", "mysql-client-core-5.7"
+terraform						                  Grafana??
+vault							
+consul							
+grafana
+
+NodeJS - to test code on jenkins
+
+export AWS_ACCESS_KEY_ID=AKIA2PNUMLAC37F425MI
+export AWS_SECRET_ACCESS_KEY=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
+
+echo AWS_ACCESS_KEY_ID=AKIA2PNUMLAC37F425MI | sudo tee -a /etc/environment 
+echo AWS_SECRET_ACCESS_KEY=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 | sudo tee -a /etc/environment  
+
+---------------------------------------------------- Installation -----------------------------------------	
+ 
+ Installation of master: (Next, we will install Vault as a service to ensure it is available after a server reboot. )
+  wget -O - https://raw.githubusercontent.com/isaacTadela/Scripts/main/master-installation.sh | bash
+  ~5min
+ 
+ Installation for node: 
+  wget -O - https://raw.githubusercontent.com/isaacTadela/Scripts/main/node-initialization.sh | bash
+ 
+ 
+ # systemctl | grep -e jenkins -e grafana -e vault -e consul  
+ 
+
+# Useful system command and more...
+ # System Useful commands:
+ # sudo apt update
+ # sudo apt -y upgrade
+ # sudo su ubuntu
+ # sudo -i
+ # sudo service jenkins restart
+ # sudo service jenkins stop
+ # sudo service jenkins start
+ # sudo systemctl status jenkins --no-pager
+ # sudo apt-get remove vault -y < "/dev/null"
 
 
-Installation:
-	---------------------------------------------------- Installation -----------------------------------------
-	sudo apt update
-	sudo apt -y upgrade
-	# AWS cli 
-	sudo apt -y install awscli
-	# Java 11
-	sudo apt search openjdk
-	sudo apt install openjdk-11-jdk -y
-	# Jenkines
-	wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
-	sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
-	sudo apt-get install jenkins -y
-	# Chef
-	wget https://packages.chef.io/files/stable/chef-workstation/21.2.278/ubuntu/20.04/chef-workstation_21.2.278-1_amd64.deb
-	sudo dpkg -i chef-workstation_21.2.278-1_amd64.deb
-	sudo apt-get install -y gnupg software-properties-common curl
-	# Hashicorp
-	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-	# Terraform
-	apt-get install terraform	
-	# Vault
-	sudo apt-get install vault
-	# Consul
-	sudo apt-get install consul
-	# Grafana the latest Enterprise edition
-	sudo apt-get install -y apt-transport-https
-	sudo apt-get install -y software-properties-common wget
-	wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
-	echo "deb https://packages.grafana.com/enterprise/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
-	sudo apt-get install grafana-enterprise	
-	sudo systemctl daemon-reload --no-pager
-	sudo systemctl start grafana-server --no-pager
+# Linux CronJob for jenkins backup
+ # create an s3 bucket for backups
+ # aws s3 mb s3://my.jenkins.backups
+ 
+ # check awscli befor - aws s3 ls
+ # check - which aws
+ 
+ # write out current crontab
+ crontab -l > mycron
+ # echo new cron into cron file, in this example it set for every 1 min
+ echo "12 * * * * /usr/bin/aws s3 cp /var/lib/jenkins/ s3://my.jenkins.backups/\"\`date \"+\%d-\%m-\%Y-\%T\"\`\" --recursive > /home/ubuntu/some-log-file.log" >> mycron
+ # install new cron file
+ crontab mycron
+ crontab -l
+ rm mycron
+ 
+ # crontab -l
+ # crontab -e 
 
-	# Configure the servers to start at boot
-	sudo systemctl enable jenkins.service
-	sudo systemctl enable grafana-server.service
+ # sudo aws s3 cp s3://my.jenkins.backups/16-11-2021-21:44:01/ /var/lib/jenkins/ --recursive
+ # sudo chown -R jenkins:jenkins ./jenkins
+ # sudo vi /var/lib/jenkins/config.xml
+ # <useSecurity>true</useSecurity> => <useSecurity>false</useSecurity>
+ # systemctl restart jenkins
 
-	# Check all installed: 
-	java -version
-	sudo systemctl status jenkins --no-pager
-	sudo systemctl status grafana-server --no-pager
-	chef -v
-	terraform -v
-	vault -v
-	consul -v
-	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-	export VAULT_ADDR='http://127.0.0.1:8200'
-	# Jenkines default port 8080
-	# Grafana default port 3000
-	# you my need to run this again, export VAULT_ADDR='http://127.0.0.1:8200'
+---------------------------------------------------- Configuretions ----------------------------------------- 
 
-	Useful commands:
-	sudo service jenkins restart
-	sudo service jenkins stop
-	sudo service jenkins start
-	sudo systemctl status jenkins
-	sudo systemctl status grafana-server --no-pager
+ Jenkines:
+   # workflow: 
+   # CI - Build and Testing the new code after every push on GitHub
+   # CD - upload the artifact to s3 and update the consul key with the new version
+   #   Chef use consul to check which version to install
+   #
+   # Jenkins Backup Using Thin Backup Plugin and Backing up the Jenkins Backup in S3
+   # https://devopscube.com/jenkins-backup-data-configurations/
+   
+  # Jenkines Plugins:
+   #  CloudBees AWS Credentials
+   #  Terraform
+   #  AnsiColor  
+   #  Thinbackup 
+   
+  # Thinbackup configuration:
+   Backup directory - /var/lib/jenkins/backup
+   Backup schedule for full backups - H 00 * * 1-5  # At 12:0H AM, Monday through Friday
+   Backup schedule for differential backups - H 1 * * 1-7  # At 01:0H AM, Monday through Sunday
+   Max number of backup sets - 3 
+   Backup build results - check
+   Backup build archive - check
+   # hit save
+   # test it and check that the folder was created - /var/lib/jenkins/backup 
+   
+   # upload the backup’s respective storage solution using a Linux CronJob
+   # https://devopscube.com/jenkins-backup-data-configurations/
+  
+  
+  # make the repos public
+  privat-unofficial-Chevrolet-Autoshop
+  Full-Deployment-pipeline
 
+  # Global credentials
+   # Create GitHub Token for https://github.com/isaacTadela/Full-Deployment-pipeline.git
+   # User name and password, where the password is the token and the username is blank but the id is GithubToken
+   # GithubToken/Jenkins-Terraform-Project  -  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
+   GithubToken/Jenkins-Terraform-Project  -  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
+   
+   # for the webhook you will need a GithubToken as a secret text
+   add secret text with the github token
 
-	Configure the Grafana server to start at boot:
-	sudo systemctl enable grafana-server.service
+   # and AWS creds with ID = awsCredentials
+   AWS_SECRET_ACCESS_KEY=pxN6OtleFEKN6+Vc8WoxecbnviOpylTCZH8lqj9D
+   AWS_ACCESS_KEY_ID=AKIA2PNUMLAC37F425MI  
+     
+  # Global Tool Configuration 
+  # add Terraform
+  # Name = Terraform-v1.0.9
+  # copy the path from this command - which terraform
+  # Install directory = /usr/bin/terraform
+  # Pipeline
+  # create a Pipeline Project
+  # GitHub project, Project url - https://github.com/isaacTadela/Full-Deployment-pipeline.git
+  # Source Code Management - Git, 
+    Repository URL - https://github.com/isaacTadela/Full-Deployment-pipeline.git
+    Credentials - GithubToken
+  # make sure the branch is master 
+  # Build Triggers, GitHub hook trigger for GITScm polling
+  # Color ANSI Console Output
+  # Build - Execute shell
+    terraform plan
+  
+  # Install the Github Jenkins plugin for webhook
+  # https://www.devopsschool.com/blog/how-to-build-when-a-change-is-pushed-to-github-in-jenkins/
+  # “Manage Jenkins” –> “Configure System” –> “Github” section and “Add Github Server”
+  # choose secret text with the github token
+  
+  
+  # You can use the tokens in the Tokens file 
+  # vault status
+  # vault operator unseal
+  # vault login 
+ 
 
-System:
-	sudo apt update
-	sudo apt -y upgrade
-	sudo apt -y install awscli	
-	
-Switch users:
-	sudo su ubuntu
-	sudo -i
-
-Jenkines:
-Installation of Java:
-	sudo apt update
-	sudo apt search openjdk
-	sudo apt install openjdk-11-jdk -y
-	java -version
-
-Long Term Support release for Debian/Ubuntu:
-	wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
-	sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > \
-		/etc/apt/sources.list.d/jenkins.list'
-	sudo apt-get update
-	sudo apt-get install jenkins -y
-	sudo systemctl status jenkins
-
-initial Admin Password for Jenkines:
-	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-
-	$ sudo service jenkins restart
-	$ sudo service jenkins stop
-	$ sudo service jenkins start
-	$ sudo systemctl status jenkins
-
-Chef:
-	wget https://packages.chef.io/files/stable/chef-workstation/21.2.278/ubuntu/20.04/chef-workstation_21.2.278-1_amd64.deb
-	sudo dpkg -i chef-workstation_21.2.278-1_amd64.deb
-	rm chef-workstation_21.2.278-1_amd64.deb
-	chef -v
-
-Terraform:
-	sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
-	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-	sudo apt-get update && sudo apt-get install terraform
-	terraform -help
-
-Vault:
-	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-	sudo apt-get update && sudo apt-get install vault
-	export VAULT_ADDR='http://127.0.0.1:8200'
-	vault
-
-Consul: 
-	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-	sudo apt-get update && sudo apt-get install consul
-	consul
-
-Grafana:
-	sudo apt-get install -y apt-transport-https
-	sudo apt-get install -y software-properties-common wget
-	wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
-	echo "deb https://packages.grafana.com/enterprise/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
-	sudo apt-get update
-	sudo apt-get install grafana-enterprise
-
-	sudo systemctl daemon-reload
-	sudo systemctl start grafana-server
+  # this pipe run first and deploy the code
+  1 git pull
+  2 get creds for DB and npm start
+  3 py testing
+  4 uploade artifact to s3
+  5 update the LaunchConfiguration - run terraform or update consul-template/chef-solo
+  
+  ○ Create CI/CD process with basic tests for your script 
+  ○ Upload the artifact to S3
+  ○ Update the LaunchConfiguration to use the new artifact on each change
 
 
-	$ sudo systemctl status grafana-server
+ # Chef session 10 - ~3:28  
+ # Chef-Solo & consul-template:
+ 
+ consul-template -config $HOME/Chef/script/consul-configuration.hcl > $HOME/consul-template.log 2>&1 &
+ 
+ sudo chef-solo -c $HOME/Chef/solo.rb -j $HOME/Chef/runlist.json --chef-license accept
 
-	Configure the Grafana server to start at boot:
-		$ sudo systemctl enable grafana-server.service
+# Add environment variable to all users if you haven't already - jenkins, aws creds and vault keys and token
+  env | grep -e AWS -e VA -e JEN
+  # expected output - JENKINS_PASS , AWS_ACCESS_KEY_ID , AWS_SECRET_ACCESS_KEY , VAULT_ADDR
+  
 
-Jenkines:
-	---------------------------------------------------- Jenkines ----------------------------------------- 
-	sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-
-	Jenkines Pip:	
-	Jenkines Plugins Required:
-
-	Workspace Cleanup Plugin
-	Credentials Binding Plugin
-	AnsiColor Plugin
-	GitHub Plugin
-	Pipeline Plugin
-	CloudBees AWS Credentials Plugin
-
-	GitHub Token:
-	isaacTadela/Full-web-app-Infrastructure-Provisioning
-		Jenkins-Terraform-Project
-		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
-	
-	
-	
-Username and Password - for cloneing
-
-ID = awsCredentials
+---------------------------------------------------- Terraform ------------------------------------- 
+ 
+ Able to respond for multiple query types and support scale up/down automatically
+ ● Installed automatically using a cookbook
+ ● Credentials should be using Vault - passwords should be temporary per-demand and
+ auto generated on runtime only
+ ● Configuration file should be automated with consul template
+ ● Full CI/CD process with tests. If all tests pass - it uploads the artifact to S3 and updates
+ consul key with the new version number (Chef uses consul to check which version to
+ install)
+ 
+ 
+ 
+ Create your infrastructure as described in the diagram using terraform
+ ● Launch Configurations
+ ○ The user-data should install chefdk & git, download your cookbook code and execute it
 
 
----------------------------------------------------- Chef ------------------------------------------
----------------------------------------------------- Terraform -------------------------------------
+
 ---------------------------------------------------- Vault ----------------------------------------- 
 
-	sudo vault status
-	sudo vault server -dev
-
-Other options:
-vault server -config=/etc/vault/config.hcl -dev-root-token-id="root"
-vault server -dev -dev-root-token-id="root"
-
-Output to copy:
-Unseal Key: ClE+CeGu6XaKN9SGo8/TulljwqT5RjTrdf4I1F9f978=
-Root Token: s.PjU9y39ro58YImc2wD3Iffv8
+Consul-template renders the user-data script with temp aws creds to pull form the s3
 
 
+ENV variable to terraform
+# Get the master node public ip for consul-template updates
 
-***Continue in a different terminal****
-export VAULT_ADDR='http://127.0.0.1:8200'	
-export VAULT_TOKEN="s.PjU9y39ro58YImc2wD3Iffv8"
+ echo TF_VAR_MASTER_IP=$(curl ifconfig.me) | sudo tee -a /etc/environment  
+ export TF_VAR_MASTER_IP=$(curl ifconfig.me)
+  
+ export TF_VAR_VAULT_ADDR="http://$(curl ifconfig.me):8200"
+ export TF_VAR_VAULT_TOKEN="s.cGESf9WGodoShcUr0AaSMjYB"
+ export TF_VAR_AWS_ACCESS_KEY_ID=AKIA2PNUMLAC37F425MI
+ export TF_VAR_AWS_SECRET_ACCESS_KEY=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
 
-vault status
-vault server -config=./config.hcl
+ ./main.tf
+ provider "vault" {
+  # It is strongly recommended to configure this provider through the
+  # environment variables described above, so that each user can have
+  # separate credentials set in the environment.
+  #
+  # This will default to using $VAULT_ADDR
+  # But can be set explicitly
+  # address = "https://vault.example.net:8200"
+  address = var.VAULT_ADDR
+  token = var.VAULT_TOKEN
+ }
+
+ resource "vault_aws_secret_backend" "vault_aws_backend" {
+  access_key = var.AWS_ACCESS_KEY_ID
+  secret_key = var.AWS_SECRET_ACCESS_KEY
+  region = "eu-west-3"
+  default_lease_ttl_seconds = "120"
+  max_lease_ttl_seconds     = "240"
+ }
 
 
-מה צריך??
-1.	Vault-Server setup
-VAULT_DEV_ROOT_TOKEN_ID=myroot  -e 'VAULT_LOCAL_CONFIG={"inmem": {}}, "default_lease_ttl": "1h", "max_lease_ttl": "8760h"}' 
-2.	Login into Vault
-a.	$ export VAULT_ADDR='http://127.0.0.1:8200’
-b.	$ vault login myroot
+resource "vault_aws_secret_backend_role" "ec2-admin" {
+  backend = vault_aws_secret_backend.vault_aws_backend.path
+  name    = "ec2-admin-role"
+  credential_type = "iam_user"
+
+  policy_document = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:*", "ec2:*"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
+  EOF
+}
+
+
+data "vault_aws_access_credentials" "creds" {
+  backend = "vault_aws_backend"
+  role    = "ec2-admin-role"
+}
+
+provider "aws" {
+  access_key = "${data.vault_aws_access_credentials.creds.access_key}"
+  secret_key = "${data.vault_aws_access_credentials.creds.secret_key}"
+  region  = "${var.region}"
+}
+
+
+ ./variables.tf
+ variable "VAULT_ADDR" {
+     type        = string
+     description = "An input variable using env variables, this is the master's machine ip."
+ }
+ 
+ variable "VAULT_TOKEN" {
+     type        = string
+     description = "An input variable using env variables, this is the vault token."
+ }
+
+ variable "AWS_ACCESS_KEY_ID" {
+     type        = string
+     description = "An input variable using env variables, this is the aws access key."
+ }
+
+ variable "AWS_SECRET_ACCESS_KEY" {
+     type        = string
+     description = "An input variable using env variables, this is the aws secret key."
+ } 
+ 
 
 
 
 
----------------------------------------------------- Consul -----------------------------------------
-http://15.236.145.201:8500/ui/
+
+# systemctl | grep -e jenkins -e grafana -e vault -e consul  
+GitHub Token:
+isaacTadela/Full-web-app-Infrastructure-Provisioning
+	Jenkins-Terraform-Project
+	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
+
+
+vault cluster:
+ https://www.youtube.com/watch?v=fOybhcbuxJ0 
+ Best Practices for Using HashiCorp Terraform with HashiCorp Vault
+ 
+ vault policy write dev-policy<<EOF
+ path "aws/creds/dev-role"{
+   capabilities =["read"]
+ }
+ EOF
+ 
+ vault auth enable github
+ vault write auth/github/config organization=hashicorp ttl=86400s
+ vault write auth/github/map/teams/vault value=dev-policy
+ 
+
+ vault screts enable -path=aws aws
+
+ vault write aws/config/root \
+  access_key=$AWS_ACCESS_KEY_ID \
+  secret_key=$AWS_SECRET_ACCESS_KEY \
+  region=eu-west-3
+
+ vault write aws/role/dev-role \
+  credential_type=iam_user \
+  policy_document=<<EOF
+  {
+    "Version":"2012-10-17",
+    "Statement":[
+      {
+        "Effect":"Allow",
+        "Action":"ec2:*",
+        "Resource":"*"
+      }
+    ]
+  }
+  EOF
+ 
+ vault write aws/config/lease lease=5m lease_max=5m
+
+ # Usage:
+ # vault read aws/creds/dev-role
+
+ # Secret Revocation
+ # vault lease revoke aws/creds/dev-role/XHHsCOS135tbkD0gMz9A8ge
+
+ ---
+ terraform {
+   required_version = ">=0.11.8"
+ }
+ 
+ provider "vault" {
+   address = "${var.vault_addr}"
+ }
+ 
+ data "vault_aws_access_credentials" "aws_creds" {
+   backend = "aws"
+   role = "dev-role"
+ }
+ 
+ provider "aws" {
+   access_key = "${data.vault_aws_access_credentials.aws_creds.access_key}"
+   secret_key = "${data.vault_aws_access_credentials.aws_creds.secret_key}"
+   region = "${data.external.region.result["region"]}"
+ }
+ 
+ vault login -method=github token=$GITHUB_TOKEN
+ export VAULT_TOKEN=asdfasdfasdf
+ terraform apply
+
+
+
+---
+Use credentials from vault instead of your configuration file
+
+	Other options:
+	vault server -config=/etc/vault/config.hcl -dev-root-token-id="root"
+	vault server -dev -dev-root-token-id="root"
+
+  add to consul-configuration.hcl
+
+  template {
+    source      = "/home/ubuntu/test.tpl"
+    destination = "/home/ubuntu/test"
+    perms       = 0755
+    command     = "cat /home/ubuntu/test"
+  }
+
+  create /home/ubuntu/test.tpl
+  {{ with secret "kv/secret" }}
+  {{ .Data.key }}
+  {{ end }}
+
+
+
+
+--------> t2.micro is not fit to master, use t2.small for master
+
+TODO:
+startfile per environment - https://www.terraform.io/docs/language/values/variables.html
+update the 'project-app.cloudinit' script
+update the script to download and *run* the app - need to update the .env file for db connection
+
+
+TF_VAR_VAULT_TOKEN  = ?
+
+work on vault 
+terraform output needed - RDS values, ec2 initialAdminPassword, the public ip of the master 
+create a stage for testing the 'Unofficial-Chevrolet-Auto-shop'
+
+
+*Switch /etc/environment to bashrc 
+If environment variable should be used by every user -> /etc/environment
+If variable is just for one user, say sudo then -> ~/. profile or ~/.bashrc
+
+
+Q&A:
+what value need to generate creds for???
+Do you need creds to do terraform init??
+Why use consul to update a role with override_attribute to use in a template ?
+  i can use consul-template to update my script and re-rerun the chef instead?
+  
+
+ GitHub Token:
+ isaacTadela/Full-web-app-Infrastructure-Provisioning
+ 	Jenkins-Terraform-Project
+ 	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
+
+
+
+---------------------------------------------------- Consul -----------------------------------------	
+  
+ ./test.tpl
+ {{ range secrets "kv/" }}
+ {{ . }}{{ end }}
+ 
+ 
+ ./Chef/script/consul-configuration.hcl
+ template {
+   source      = "/home/ubuntu/test.tpl"
+   destination = "/home/ubuntu/test.txt"
+    exec {
+      command = "cat /home/ubuntu/test.txt"
+    }
+ }
+
+  
+ ○ Use consul-template to generate your configuration file dynamically
+
+
 ---------------------------------------------------- Grafana ----------------------------------------- 
----------------------------------------------------- Testing ----------------------------------------- 
+	○ Create a grafana / cloudwatch dashboard with your service metrics
+  ○ The script should send some metrics to AWS CloudWatch for basic monitoring
+  and auto scaling features
 
 
+---------------------------------------------------- Goals ----------------------------------------- 
 
-$ export VAULT_ADDR='http://127.0.0.1:8200'
-
-The unseal key and root token are displayed below in case you want to
-seal/unseal the Vault or re-authenticate.
-
-Unseal Key: 47bR+o1uxYcbUPNy7UMcEaAqxfP0oJJPWxlci5pwekA=
-Root Token: root
-
-
-
-
+ ● Database:
+  ○ Create MySql RDS
+  ○ Use it to save data that you pull from the API above
+  ○ Add the URL & credentials to your script config file
+ ● Chef:
+  ○ Create a cookbook that installs your script and executes it
+ ● Hashicorp:
+  ○ Terraform
+   ■ Create your infrastructure as described in the diagram using terraform
+ ● Launch Configurations
+  ○ The user-data should install chefdk & git, download your cookbook code and execute it
+ ● Auto Scaling group using the LaunchConfiguration above
+  ○ Define scaling rules using metrics that your service sends to CloudWatch
+ ● Load Balancer for forwarding traffic to the instances in the group above
+ ● VPC
+ ● Key-pair
+ ● Subnets
+ ● Security groups
+  ○ Vault
+   ■ Use credentials from vault instead of your configuration file
+  ○ Consul
+   ■ Use consul-template to generate your configuration file dynamically
+ ● Jenkins:
+  ○ Create CI/CD process with basic tests for your script
+  ○ Upload the artifact to S3
+  ○ Update the LaunchConfiguration to use the new artifact on each change
+ ● Monitoring:
+  ○ Create a grafana / cloudwatch dashboard with your service metrics
+  ○ The script should send some metrics to AWS CloudWatch for basic monitoring and auto scaling features
+ 
+ 
+ Level 4 (real DevOps)
+  Infra: (using terraform)
+   ● VPC
+   ● Subnets
+   ● KeyPair
+   ● Launch Configuration
+   ● Auto scaling group
+   ● Load Balancer
+   ● Security groups (Concrete, For every resource!)
+   ● RDS
+   ● Grafana dashboard using cloudwatch metrics
+   ● Support instances (Jenkins / Consul / Vault / Grafana - can all be on a single instance)
+  Script:
+   ● Able to respond for multiple query types and support scale up/down automatically
+   ● Installed automatically using a cookbook
+   ● Credentials should be using Vault - passwords should be temporary per-demand and auto generated on runtime only
+   ● Configuration file should be automated with consul template
+   ● Full CI/CD process with tests. If all tests pass - it uploads the artifact to S3 and updates consul key with the new version number (Chef uses consul to check which version to install)
+ 
