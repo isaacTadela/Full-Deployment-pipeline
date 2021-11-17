@@ -17,11 +17,6 @@ wget https://packages.chef.io/files/stable/chefdk/4.13.3/ubuntu/20.04/chefdk_4.1
 sudo dpkg -i chefdk_4.13.3-1_amd64.deb
 rm chefdk_4.13.3-1_amd64.deb
 
-# aws cli installation
-sudo apt -y install awscli < "/dev/null"
-
-# run chef cookbook artifact downloaded from private s3 bucket
-aws s3api get-object --bucket unofficial-chevrolet-auto-shop-bucket --key Chef_ec2.tar.gz Chef_ec2.tar.gz
-tar -xvzf Chef_ec2.tar.gz -C ~/
-rm Chef_ec2.tar.gz
-sudo chef-solo -c ~/Chef_ec2/solo.rb -j ~/Chef_ec2/runlist.json --chef-license accept
+# run chef cookbook downloaded from git repo
+git clone https://github.com/isaacTadela/Chef.git $HOME
+# sudo chef-solo -c $HOME/Chef/solo.rb -j $HOME/Chef/runlist.json --chef-license accept

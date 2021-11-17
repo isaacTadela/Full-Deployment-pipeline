@@ -1,3 +1,4 @@
+
 resource "aws_security_group" "ec2_sg" {
   name        			  = "ec2_security_group"
   vpc_id      			  = var.vpc_id
@@ -125,13 +126,12 @@ data "template_file" "script" {
   template = file("${path.module}/templates/project-app.cloudinit")
 
   vars = {
-	MASTER_IP=var.master_ip
-	DB_DNS=var.db_hostname
-	DB_PORT=var.db_port
-	DB_USER=var.db_username
-	DB_PASS=var.db_password
+	  MASTER_IP=var.master_ip
+	  DB_DNS=var.db_hostname
+	  DB_PORT=var.db_port
+	  DB_USER=var.db_username
+	  DB_PASS=var.db_password
   }
-
 }
 
 resource "aws_network_interface" "master_network_interface" {

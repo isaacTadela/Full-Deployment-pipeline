@@ -1,7 +1,27 @@
 variable "MASTER_IP" {
-     type        = string
-     description = "An input variable using env variables, this is the master's machine ip."
+  type        = string
+  description = "An input variable using environment variables, this is the master's machine ip."
 }
+
+variable "VAULT_ADDR" {
+  type        = string
+  description = "An input variable using environment variables, this is the master's machine ip."
+}
+
+variable "VAULT_TOKEN" {
+  type        = string
+  description = "An input variable using environment variables, this is the vault token."
+}
+
+variable "AWS_ACCESS_KEY_ID" {
+  type        = string
+  description = "An input variable using environment variables, this is the aws access key."
+}
+
+variable "AWS_SECRET_ACCESS_KEY" {
+  type        = string
+  description = "An input variable using environment variables, this is the aws secret key."
+} 
 
 variable "environment" {
   description 	= "This is mainly used to set various ideintifiers and prefixes/suffixes"

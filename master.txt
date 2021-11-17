@@ -199,7 +199,11 @@ echo AWS_SECRET_ACCESS_KEY=pxN6OtleFEKN6+Vc8WoxecbnviOpylTCZH8lqj9D | sudo tee -
 
 ---------------------------------------------------- Vault ----------------------------------------- 
 
-Consul-template renders the user-data script with temp aws creds to pull form the s3
+- Consul-template renders the cookbook script with temp aws creds to pull form the s3
+- use vault-aws-role to grant temporary role to the ec2
+- This helps us to achieve ability to generate short lived AWS credentials 
+  for each terraform run that are automatically revoked after the run.
+- create new module for vault
 
 
 ENV variable to terraform
@@ -214,48 +218,7 @@ ENV variable to terraform
  export TF_VAR_AWS_SECRET_ACCESS_KEY=pxN6OtleFEKN6+Vc8WoxecbnviOpylTCZH8lqj9D
 
  ./main.tf
- provider "vault" {
-  # It is strongly recommended to configure this provider through the
-  # environment variables described above, so that each user can have
-  # separate credentials set in the environment.
-  #
-  # This will default to using $VAULT_ADDR
-  # But can be set explicitly
-  # address = "https://vault.example.net:8200"
-  address = var.VAULT_ADDR
-  token = var.VAULT_TOKEN
- }
-
- resource "vault_aws_secret_backend" "vault_aws_backend" {
-  access_key = var.AWS_ACCESS_KEY_ID
-  secret_key = var.AWS_SECRET_ACCESS_KEY
-  region = "eu-west-3"
-  default_lease_ttl_seconds = "120"
-  max_lease_ttl_seconds     = "240"
- }
-
-
-resource "vault_aws_secret_backend_role" "ec2-admin" {
-  backend = vault_aws_secret_backend.vault_aws_backend.path
-  name    = "ec2-admin-role"
-  credential_type = "iam_user"
-
-  policy_document = <<EOF
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": [
-          "iam:*", "ec2:*"
-        ],
-        "Resource": "*"
-      }
-    ]
-  }
-  EOF
-}
-
+ 
 
 data "vault_aws_access_credentials" "creds" {
   backend = "vault_aws_backend"
@@ -267,32 +230,6 @@ provider "aws" {
   secret_key = "${data.vault_aws_access_credentials.creds.secret_key}"
   region  = "${var.region}"
 }
-
-
- ./variables.tf
- variable "VAULT_ADDR" {
-     type        = string
-     description = "An input variable using env variables, this is the master's machine ip."
- }
- 
- variable "VAULT_TOKEN" {
-     type        = string
-     description = "An input variable using env variables, this is the vault token."
- }
-
- variable "AWS_ACCESS_KEY_ID" {
-     type        = string
-     description = "An input variable using env variables, this is the aws access key."
- }
-
- variable "AWS_SECRET_ACCESS_KEY" {
-     type        = string
-     description = "An input variable using env variables, this is the aws secret key."
- } 
- 
-
-
-
 
 
 # systemctl | grep -e jenkins -e grafana -e vault -e consul  
@@ -453,8 +390,7 @@ Why use consul to update a role with override_attribute to use in a template ?
 
 ---------------------------------------------------- Grafana ----------------------------------------- 
 	○ Create a grafana / cloudwatch dashboard with your service metrics
-  ○ The script should send some metrics to AWS CloudWatch for basic monitoring
-  and auto scaling features
+  ○ The script should send some metrics to AWS CloudWatch for basic monitoring and auto scaling features
 
 
 ---------------------------------------------------- Goals ----------------------------------------- 
