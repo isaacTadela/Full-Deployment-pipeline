@@ -8,7 +8,6 @@ terraform {
   }
 } 
 
-
 provider "vault" {
   # This will default use $VAULT_ADDR But can be set explicitly
   # address = "https://vault.example.net:8200"
@@ -17,52 +16,49 @@ provider "vault" {
   token = var.VAULT_TOKEN
 }
 
-resource "vault_aws_secret_backend" "aws" {
-  access_key = "${var.access_key}"
-  secret_key = "${var.secret_key}"
+resource "vault_aws_secret_backend" "aws-engine" {
+  access_key = var.AWS_ACCESS_KEY_ID
+  secret_key = var.AWS_SECRET_ACCESS_KEY
   region = var.region
-  
+
   default_lease_ttl_seconds = "120"
   max_lease_ttl_seconds     = "240"
 }
-resource "vault_aws_secret_backend_role" "ec2-admin" {
-  backend = "${vault_aws_secret_backend.aws.path}"
-  name    = "ec2-admin-role"
-policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "iam:*", "ec2:*"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-EOF
+
+resource "vault_aws_secret_backend_role" "dev-admin" {
+  backend = "${vault_aws_secret_backend.aws-engine.path}"
+  name    = "dev-admin-role"
+  policy = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:*", "ec2:*", "s3:*", "rds:*"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
+  EOF
 }
 
 data "vault_aws_access_credentials" "creds" {
   backend = "aws"
-  role    = "ec2-admin-role"
+  role    = "dev-admin-role"
 }
 
 provider "aws" {
-  access_key = "${data.vault_aws_access_credentials.creds.access_key}"
-  secret_key = "${data.vault_aws_access_credentials.creds.secret_key}"
-  region  = "${var.region}"
+  access_key = data.vault_aws_access_credentials.creds.access_key
+  secret_key = data.vault_aws_access_credentials.creds.secret_key
+  region  = var.region
+
+  default_tags {
+    tags = var.default_tags
+  }
 }
 
-
-# provider "aws" {
-#   region  = var.region
-# 
-#   default_tags {
-#     tags = var.default_tags
-#   }
-# }
 
 module "vpc" {
   source = "./modules/vpc"
