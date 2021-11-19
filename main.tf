@@ -28,7 +28,9 @@ resource "vault_aws_secret_backend" "aws-engine" {
 resource "vault_aws_secret_backend_role" "dev-admin" {
   backend = "${vault_aws_secret_backend.aws-engine.path}"
   name    = "dev-admin-role"
-  policy = <<EOF
+  credential_type = "iam_user"
+
+  policy_document  = <<EOF
   {
     "Version": "2012-10-17",
     "Statement": [
