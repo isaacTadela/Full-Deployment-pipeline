@@ -18,6 +18,6 @@ sudo dpkg -i chefdk_4.13.3-1_amd64.deb
 rm chefdk_4.13.3-1_amd64.deb
 
 # run chef cookbook downloaded from git repo
-git clone https://github.com/isaacTadela/Chef.git $HOME
+git clone https://github.com/isaacTadela/Chef.git /home/Chef/
 
-sudo chef-solo -c $HOME/Chef/solo.rb -j $HOME/Chef/runlist.json --chef-license accept
+sudo chef-solo -c /home/Chef/solo.rb -j /home/Chef/runlist.json --chef-license accept
