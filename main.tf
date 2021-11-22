@@ -28,8 +28,8 @@ resource "vault_aws_secret_backend" "aws" {
   secret_key = var.AWS_SECRET_ACCESS_KEY
   region = var.region
 
-  # 10:30min
-  default_lease_ttl_seconds = "630" 
+  # 12min
+  default_lease_ttl_seconds = "720" 
 }
 
 resource "vault_aws_secret_backend_role" "dev-admin" {
