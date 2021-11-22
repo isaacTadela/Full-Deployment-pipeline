@@ -34,15 +34,11 @@ resource "vault_aws_secret_backend" "aws" {
 
 resource "vault_aws_secret_backend_role" "dev-admin" {
   backend = "${vault_aws_secret_backend.aws.path}"
-  name    = "dev-admin-role"
+  name    = "ec2-node-role"
   credential_type = "iam_user"
  
-# Need:
-# AmazonS3ReadOnlyAccess
-# CloudWatchReadOnlyAccess
-
-
-# The policy 'dev-admin-role' generated for every ec2 machine 
+# Need: AmazonS3ReadOnlyAccess + CloudWatchReadOnlyAccess
+# The policy generated for every ec2 machine 
 # valid for how long???
 policy_document= <<EOF
 {
@@ -51,7 +47,20 @@ policy_document= <<EOF
     {
       "Effect": "Allow",
       "Action": [
-        "iam:*", "ec2:*", "rds:*", "elasticloadbalancing:*", "autoscaling:*", "cloudwatch:*"
+        "s3:Get", 
+        "s3:List", 
+        "autoscaling:Describe",
+        "autoscaling:Describe*",
+        "cloudwatch:Describe*",
+        "cloudwatch:Get*",
+        "cloudwatch:List*",
+        "logs:Get*",
+        "logs:List*",
+        "logs:StartQuery",
+        "logs:StopQuery",
+        "logs:Describe*",
+        "logs:TestMetricFilter",
+        "logs:FilterLogEvents"
       ],
       "Resource": "*"
     }
