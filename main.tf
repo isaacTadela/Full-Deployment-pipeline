@@ -17,7 +17,7 @@ provider "vault" {
   token = var.VAULT_TOKEN
 
   # This version in here only because of a bug in version 3.0.0
-  # The issue link: https://github.com/hashicorp/terraform-provider-vault/issues/1226
+  # The open issue link: https://github.com/hashicorp/terraform-provider-vault/issues/1226
   # The issue is: policy_arns cannot be null on version 3.0.0
   version = "~> 2.24.1"
 }
@@ -28,15 +28,22 @@ resource "vault_aws_secret_backend" "aws" {
   secret_key = var.AWS_SECRET_ACCESS_KEY
   region = var.region
 
-  # 10min
-  default_lease_ttl_seconds = "600" 
+  # 10:30min
+  default_lease_ttl_seconds = "630" 
 }
 
 resource "vault_aws_secret_backend_role" "dev-admin" {
   backend = "${vault_aws_secret_backend.aws.path}"
   name    = "dev-admin-role"
   credential_type = "iam_user"
+ 
+# Need:
+# AmazonS3ReadOnlyAccess
+# CloudWatchReadOnlyAccess
 
+
+# The policy 'dev-admin-role' generated for every ec2 machine 
+# valid for how long???
 policy_document= <<EOF
 {
   "Version": "2012-10-17",
@@ -123,8 +130,7 @@ module "ec2" {
   environment 							= var.environment
   autoscaling_tags                      = var.default_tags
   master_ip 									= var.MASTER_IP 
-  aws_access_key              = var.AWS_ACCESS_KEY_ID
-  aws_secret_key              = var.AWS_SECRET_ACCESS_KEY
+  vault_token = var.VAULT_TOKEN
   region  = var.region
 
   depends_on = [module.alb]

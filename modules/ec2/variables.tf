@@ -1,8 +1,6 @@
 variable "master_ip" {}
 
-variable "aws_access_key" {}
-
-variable "aws_secret_key" {}
+variable "vault_token" {}
 
 variable "region" {}
 

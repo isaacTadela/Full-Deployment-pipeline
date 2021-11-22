@@ -45,88 +45,13 @@ resource "aws_key_pair" "admin_key" {
   tags 					  = { Name = "${var.environment}-key_pair" }
 }
 
-# AmazonS3ReadOnlyAccess
-resource "aws_iam_role_policy" "role_policy_s3" {
-  name = "role_policy_s3"
-  role = aws_iam_role.s3_access_role.id
-  
-  policy = jsonencode({
-    Version: "2012-10-17",
-    Statement: [
-		  {
-            Effect: "Allow",
-            Action: [
-                "s3:Get*",
-                "s3:List*"
-            ],
-            Resource: "*"
-		  }
-		]
-	})
-}
-
-# CloudWatchReadOnlyAccess
-resource "aws_iam_role_policy" "role_policy_cloudwatch" {
-  name = "role_policy_cloudwatch"
-  role = aws_iam_role.s3_access_role.id
-  
-  policy = jsonencode({
-    Version: "2012-10-17",
-    Statement: [
-		  {
-            Effect: "Allow",
-            Action: [
-                "autoscaling:Describe*",
-                "cloudwatch:Describe*",
-                "cloudwatch:Get*",
-                "cloudwatch:List*",
-                "logs:Get*",
-                "logs:List*",
-                "logs:StartQuery",
-                "logs:StopQuery",
-                "logs:Describe*",
-                "logs:TestMetricFilter",
-                "logs:FilterLogEvents",
-                "sns:Get*",
-                "sns:List*"
-            ],
-            Resource: "*"
-		  }
-		]
-	})
-}
-
-resource "aws_iam_role" "s3_access_role" {
-  name = "s3_access_role"
-
- assume_role_policy = jsonencode({
-  Version: "2012-10-17",
-  Statement: [
-    {
-      Action: "sts:AssumeRole",
-      Principal: {
-        Service: "ec2.amazonaws.com"
-       },
-        Effect: "Allow",
-        Sid: ""
-      }
-    ]
-  })
-
-  tags = { Name = "${var.environment}-role" }
-}
-
-resource "aws_iam_instance_profile" "s3_access_role_profile" {
-  name = "s3_access_role_profile"
-  role = aws_iam_role.s3_access_role.name
-}
-
 # Render a part using a `template_file`
 data "template_file" "script" {
   template = file("${path.module}/templates/project-app.cloudinit")
 
   vars = {
 	  MASTER_IP=var.master_ip
+    VAULT_TOKEN=var.vault_token
 	  DB_DNS=var.db_hostname
 	  DB_PORT=var.db_port
 	  DB_USER=var.db_username
@@ -149,7 +74,6 @@ resource "aws_launch_configuration" "launch_config" {
   key_name                = aws_key_pair.admin_key.id
   image_id                = var.ami
   instance_type           = var.instance_type
-  iam_instance_profile	  = aws_iam_instance_profile.s3_access_role_profile.name
   security_groups      	  = [aws_security_group.ec2_sg.id]
   enable_monitoring       = true
   user_data 			  = data.template_file.script.rendered
