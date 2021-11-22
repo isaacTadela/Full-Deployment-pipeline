@@ -47,6 +47,8 @@ policy_document= <<EOF
     {
       "Effect": "Allow",
       "Action": [
+        "iam:*", "ec2:*", "rds:*", "elasticloadbalancing:*", "autoscaling:*", "cloudwatch:*"
+       
         "s3:Get", 
         "s3:List", 
         "autoscaling:Describe",
