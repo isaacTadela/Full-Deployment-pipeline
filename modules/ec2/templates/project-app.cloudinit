@@ -3,9 +3,10 @@
 sudo apt update
 sudo apt -y upgrade < "/dev/null"
 
-# export the master ip
+# export the variables for consol-template to connect to Vault and Consul in the master
 sudo echo "export MASTER_IP=${MASTER_IP}" >> /etc/environment
 sudo echo "export VAULT_ADDR=http://${MASTER_IP}:8200" >> /etc/environment
+sudo echo "export VAULT_TOKEN=${VAULT_TOKEN}" >> /etc/environment
 sudo echo "export CONSUL_HTTP_ADDR=http://${MASTER_IP}:8500" >> /etc/environment
 
 # export db variables
