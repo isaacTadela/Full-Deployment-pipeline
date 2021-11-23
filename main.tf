@@ -49,8 +49,7 @@ policy_document= <<EOF
       "Action": [
         "iam:*", "ec2:*", "rds:*", "elasticloadbalancing:*", "autoscaling:*", "cloudwatch:*",
      
-        "s3:Get", 
-        "s3:List", 
+        "s3:*",  
         "autoscaling:Describe",
         "autoscaling:Describe*",
         "cloudwatch:Describe*",
