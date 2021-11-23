@@ -3,10 +3,9 @@
 sudo apt update
 sudo apt -y upgrade < "/dev/null"
 
-# export the variables for consol-template to connect to Vault and Consul in the master
+# export the master ip
 sudo echo "export MASTER_IP=${MASTER_IP}" >> /etc/environment
 sudo echo "export VAULT_ADDR=http://${MASTER_IP}:8200" >> /etc/environment
-sudo echo "export VAULT_TOKEN=${VAULT_TOKEN}" >> /etc/environment
 sudo echo "export CONSUL_HTTP_ADDR=http://${MASTER_IP}:8500" >> /etc/environment
 
 # export db variables
@@ -20,7 +19,12 @@ wget https://packages.chef.io/files/stable/chefdk/4.13.3/ubuntu/20.04/chefdk_4.1
 sudo dpkg -i chefdk_4.13.3-1_amd64.deb
 rm chefdk_4.13.3-1_amd64.deb
 
-# run chef cookbook downloaded from git repo
+# Download the cookbook
 git clone https://github.com/isaacTadela/Chef.git /home/Chef/
 
+# Install and run Consul-template
+sh /home/Chef/script/consul-installation.sh
+consul-template -config /home/Chef/script/consul-configuration.hcl > /home/consul-template.log 2>&1 &
+
+# Run the cookbook
 sudo chef-solo -c /home/Chef/solo.rb -j /home/Chef/runlist.json --chef-license accept
