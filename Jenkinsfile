@@ -7,17 +7,6 @@ stage('checkout') {
     }
   } 
 
-// Build and Test the app
-stage('Build and Test') {
-  node {
-    ansiColor('xterm') {
-      sh'''
-      git clone https://github.com/isaacTadela/privat-unofficial-Chevrolet-Autoshop.git
-      '''
-    }
-  }
-}
-
 
 // Run terraform init and plan
 stage('Terraform init and plan') {
@@ -59,30 +48,3 @@ if (env.BRANCH_NAME == 'master') {
   }
 }
   
-
-// Upload artifact to S3 
-stage('Upload artifact') {
-  node {
-    ansiColor('xterm') {
-      withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-        sh'''
-        aws s3 ls
-        '''
-      }
-    }
-  }
-}
-
-
-// Update Consul KV 
-stage('Update Consul') {
-  node {
-    ansiColor('xterm') {
-      withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'awsCredentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-        sh'''
-        aws s3 ls
-        '''
-      }
-    }
-  }
-}
