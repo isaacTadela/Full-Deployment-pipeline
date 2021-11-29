@@ -79,7 +79,7 @@ variable "autoscaling_group_max_size" {
 }
 
 variable "autoscaling_group_desired_capacity" {
-  default		= 1
+  default		= 2
 }
 
 variable "instance_type" {
