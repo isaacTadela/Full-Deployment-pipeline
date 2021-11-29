@@ -41,8 +41,13 @@ path "aws/creds/ec2-node-role" {
 }
 
 path "auth/token/renew-self" {
-		capabilities = [ "update" ]
+    capabilities = [ "update" ]
 }	
+
+path "auth/token/lookup-self" {
+   capabilities = ["read"]
+}
+	
 EOT
 }
 
