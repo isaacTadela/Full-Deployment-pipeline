@@ -13,7 +13,7 @@ provider "vault" {
   # This will default use $VAULT_ADDR But can be set explicitly
   # address = "https://vault.example.net:8200"
   # I use $TF_VAR_VAULT_ADDR just for the practice
-  address = var.MASTER_IP
+  address = var.VAULT_ADDR
   token = var.VAULT_TOKEN
 
   # This version in here only because of a bug in version 3.0.0
