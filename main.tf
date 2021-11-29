@@ -35,7 +35,7 @@ resource "vault_aws_secret_backend" "aws" {
 resource "vault_policy" "example" {
   name = "ec2-node-policy"
 
-  policy = <<EOT  
+  policy = <<EOT
 path "aws/creds/ec2-node-role" {
     capabilities =["create", "read", "update", "delete", "list"] 
 }
