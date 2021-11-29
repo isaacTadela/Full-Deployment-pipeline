@@ -28,8 +28,9 @@ resource "vault_aws_secret_backend" "aws" {
   secret_key = var.AWS_SECRET_ACCESS_KEY
   region = var.region
 
-  # 12min
-  default_lease_ttl_seconds = "720" 
+  # 13min
+  default_lease_ttl_seconds = "780" 
+  max_lease_ttl_seconds = "780" 
 }
 
 resource "vault_policy" "example" {
