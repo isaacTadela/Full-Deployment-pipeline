@@ -3,6 +3,11 @@ variable "MASTER_IP" {
   description = "An input variable using environment variables, this is the master's machine ip."
 }
 
+variable "VAULT_ADDR" {
+  type        = string
+  description = "An input variable using environment variables, this is the master's machine ip."
+}
+
 variable "VAULT_TOKEN" {
   type        = string
   description = "An input variable using environment variables, this is the vault token."
