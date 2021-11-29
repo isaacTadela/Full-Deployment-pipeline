@@ -32,6 +32,16 @@ resource "vault_aws_secret_backend" "aws" {
   default_lease_ttl_seconds = "720" 
 }
 
+resource "vault_policy" "example" {
+  name = "ec2-node-policy"
+
+  policy = <<EOT
+path "aws/creds/ec2-node-role"{
+    capabilities =["create", "read", "update", "delete", "list"] 
+}
+EOT
+}
+
 resource "vault_aws_secret_backend_role" "dev-admin" {
   backend = "${vault_aws_secret_backend.aws.path}"
   name    = "ec2-node-role"
