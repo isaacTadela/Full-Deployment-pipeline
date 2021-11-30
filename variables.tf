@@ -71,7 +71,7 @@ variable "db_password" {
 }
 
 variable "autoscaling_group_min_size" {
-  default		= 1
+  default		= 2
 }
 
 variable "autoscaling_group_max_size" {
