@@ -1,4 +1,6 @@
-variable "master_ip" {}
+variable "master_public_ip" {}
+
+variable "master_private_ip" {}
 
 variable "vault_token" {}
 

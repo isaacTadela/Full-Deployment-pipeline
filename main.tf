@@ -159,7 +159,8 @@ module "ec2" {
   ami 									= var.ami
   environment 							= var.environment
   autoscaling_tags                      = var.default_tags
-  master_ip 									= var.MASTER_IP 
+  master_public_ip 									= var.MASTER_PUBLIC_IP 
+  master_private_ip 									= var.MASTER_PRIVATE_IP 
   vault_token = var.VAULT_TOKEN
   region  = var.region
 

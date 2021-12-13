@@ -1,6 +1,11 @@
-variable "MASTER_IP" {
+variable "MASTER_PUBLIC_IP" {
   type        = string
-  description = "An input variable using environment variables, this is the master's machine ip."
+  description = "An input variable using environment variables, this is the master's machine public ip."
+}
+
+variable "MASTER_PRIVATE_IP" {
+  type        = string
+  description = "An input variable using environment variables, this is the master's machine private ip."
 }
 
 variable "VAULT_ADDR" {

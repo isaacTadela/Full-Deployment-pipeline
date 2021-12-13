@@ -50,8 +50,9 @@ data "template_file" "script" {
   template = file("${path.module}/templates/project-app.cloudinit")
 
   vars = {
-	  MASTER_IP=var.master_ip
-    VAULT_TOKEN=var.vault_token
+	  MASTER_PUBLIC_IP=var.master_public_ip
+          MASTER_PRIVATE_IP=var.master_private_ip
+          VAULT_TOKEN=var.vault_token
 	  DB_DNS=var.db_hostname
 	  DB_PORT=var.db_port
 	  DB_USER=var.db_username
