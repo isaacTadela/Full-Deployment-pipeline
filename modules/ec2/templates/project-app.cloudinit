@@ -8,7 +8,10 @@ sudo echo "export MASTER_PUBLIC_IP=${MASTER_PUBLIC_IP}" >> /etc/environment
 sudo echo "export MASTER_PRIVATE_IP=${MASTER_PRIVATE_IP}" >> /etc/environment
 sudo echo "export VAULT_ADDR=http://${MASTER_PUBLIC_IP}:8200" >> /etc/environment
 sudo echo "export VAULT_TOKEN=${VAULT_TOKEN}" >> /etc/environment
-sudo echo "export CONSUL_HTTP_ADDR=http://${MASTER_PUBLIC_IP}:8500" >> /etc/environment
+
+# This can be used when running other consul CLI commands that connect with a running agent,
+# e.g. CONSUL_HTTP_ADDR=192.168.0.1:8500 consul members
+# sudo echo "export CONSUL_HTTP_ADDR=http://${MASTER_PUBLIC_IP}:8500" >> /etc/environment
 
 # export db variables
 sudo echo "export DB_DNS=${DB_DNS}" >> /etc/environment
