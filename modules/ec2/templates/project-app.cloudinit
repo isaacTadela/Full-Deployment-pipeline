@@ -27,5 +27,8 @@ rm chefdk_4.13.3-1_amd64.deb
 # Download the cookbook
 git clone https://github.com/isaacTadela/Chef.git /home/Chef/
 
+# mkdir for logs
+mkdir /home/logs
+
 # Run the cookbook
 sudo chef-solo -c /home/Chef/solo.rb -j /home/Chef/runlist.json --chef-license accept
