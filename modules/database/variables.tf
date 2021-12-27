@@ -27,7 +27,7 @@ variable "apply_immediately" {
 }
 
 variable "publicly_accessible" {
-  default = "true"
+  default = "false"
 }
 
 variable "engine" {

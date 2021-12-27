@@ -40,7 +40,7 @@ resource "aws_alb_target_group" "group" {
     type = "lb_cookie"
   }
   
-  #You can alter the destination of the health check, this will check the home page
+  # You can alter the destination of the health check, this will check the home page
   health_check {
     path 				= var.health_check_path
     port 				= var.target_port
