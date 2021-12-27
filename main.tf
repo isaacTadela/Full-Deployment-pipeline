@@ -71,7 +71,6 @@ provider "aws" {
     tags      = var.default_tags
   }
 
-  depends_on  = [module.vault]
 }
 
 
@@ -105,8 +104,6 @@ module "vpc" {
   private_subnets 		  = var.private_subnets
   public_subnets 			  = var.public_subnets
   environment 				  = var.environment
-
-  depends_on            = [provider.aws]
 }
 
 
